@@ -20,7 +20,11 @@ CheapStepper stepper;
 //11 <--> IN4
 
 //characters for authentication
-char auth[] = "1e3559d0b8154744a50ecaa67c360527";
+//olujide
+//char auth[] = "1e3559d0b8154744a50ecaa67c360527";
+
+//aaron
+char auth[] = "b38cce33fe464f1492fb5bb940f1c0a3";
 
 //boolean variable to save the direction of our rotation
 boolean moveClockwise = true;
