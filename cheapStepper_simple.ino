@@ -10,6 +10,7 @@
 #include <Bridge.h>
 #include <Blynk.h>
 #include <BlynkSimpleYun.h>
+#include <HttpClient.h>
 
 CheapStepper stepper;
 //here we declare our stepper using default pins:
@@ -21,10 +22,16 @@ CheapStepper stepper;
 
 //characters for authentication
 //olujide
-//char auth[] = "1e3559d0b8154744a50ecaa67c360527";
+char auth[] = "1e3559d0b8154744a50ecaa67c360527";
 
 //aaron
-char auth[] = "b38cce33fe464f1492fb5bb940f1c0a3";
+//char auth[] = "b38cce33fe464f1492fb5bb940f1c0a3";
+
+// Add your PushingBox Scenario DeviceID here:
+char devid[] = "vF068878514F39A5";
+
+char serverName[] = "api.pushingbox.com";
+boolean DEBUG = true;
 
 //boolean variable to save the direction of our rotation
 boolean moveClockwise = true;
@@ -42,7 +49,8 @@ void setup()
   Blynk.begin(auth);
 }
 
-void loop() {
+void loop() 
+{
   Blynk.run();
   
   //button status reads in PIN
@@ -53,7 +61,7 @@ void loop() {
   {
     for(int x=0; x<2; x++)
     {
-      for (int s=0; s<2048; s++)
+      for (int s=0; s<512; s++)
       {
         // 4096 steps = full rotation using default values
         // this will loop 2048 times for a half rotation
@@ -83,6 +91,33 @@ void loop() {
       //and switch directions for one more rotation
       moveClockwise = !moveClockwise;
     }
-  } 
+  }
+
+  // Initialize the client library
+  HttpClient client;
+
+  //Setup sensorValue to read a value from Analog Port A0
+  int sensorValue = analogRead(A0);
+  
+  //Testing value - when sensor is not connected - comment out when sketch is shown to be working - and take value from A0 instead
+  //sensorValue=1500;
+
+  // Make a HTTP request:  
+  String APIRequest;
+  APIRequest = String(serverName) + "/pushingbox?devid=" + String(devid)+ "&IDtag=100&TimeStamp=50&TempC=200"+sensorValue;
+  client.get (APIRequest);
+  
+  // if there are incoming bytes available
+  // from the server, read them and print them:
+  while (client.available()) {
+    char c = client.read();
+  }
+  
+  Serial.flush();
+  String UploadMessage;
+  Serial.print("\n Uploaded temp value: ");
+  Serial.print(sensorValue);
+  delay(5000);
+  
 }
 
