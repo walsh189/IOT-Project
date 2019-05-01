@@ -63,9 +63,9 @@ void loop()
       for (int s=0; s<512; s++)
       {
         // 4096 steps = full rotation using default values
-        // this will loop 2048 times for a half rotation
+        // this will loop 512 times for one eighth of a rotation
 
-        // let's move one "step" (of the 2048 per full rotation)
+        // let's move one "step" (of the 512 per full rotation)
         stepper.step(moveClockwise);
         
         /* the direction is based on moveClockwise boolean:
@@ -103,8 +103,11 @@ void loop()
 
     // Make a HTTP request:  
     String APIRequest;
-    APIRequest = String(serverName) + "/pushingbox?devid=" + String(devid)+ "&IDtag=100&TimeStamp=50&TempC=200"+sensorValue;
+    APIRequest = String(serverName) + "/pushingbox?devid=" + String(devid) + "&IDtag=100&TimeStamp=50&TempC=200"+sensorValue;
     client.get (APIRequest);
+    
+    //email
+    client.get ("http://api.pushingbox.com/pushingbox?devid=v0A2B7B1F36351B4");
   
     // if there are incoming bytes available
     // from the server, read them and print them:
@@ -114,8 +117,7 @@ void loop()
   
   Serial.flush();
   String UploadMessage;
-  Serial.print("\n Uploaded temp value: ");
-  //Serial.print(sensorValue);
+  Serial.print("\n Uploaded feeder data");
   delay(5000);
   }
 }
