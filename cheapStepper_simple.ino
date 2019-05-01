@@ -10,6 +10,7 @@
 #include <Bridge.h>
 #include <Blynk.h>
 #include <BlynkSimpleYun.h>
+#include <HttpClient.h>
 
 CheapStepper stepper;
 //here we declare our stepper using default pins:
@@ -21,10 +22,16 @@ CheapStepper stepper;
 
 //characters for authentication
 //olujide
-//char auth[] = "1e3559d0b8154744a50ecaa67c360527";
+char auth[] = "1e3559d0b8154744a50ecaa67c360527";
 
 //aaron
-char auth[] = "b38cce33fe464f1492fb5bb940f1c0a3";
+//char auth[] = "b38cce33fe464f1492fb5bb940f1c0a3";
+
+// Add your PushingBox Scenario DeviceID here:
+char devid[] = "vF068878514F39A5";
+
+char serverName[] = "api.pushingbox.com";
+boolean DEBUG = true;
 
 //boolean variable to save the direction of our rotation
 boolean moveClockwise = true;
@@ -41,24 +48,24 @@ void setup()
   pinMode(3, INPUT);
   Blynk.begin(auth);
 }
-
-void loop() {
+//int sensorValue;
+void loop() 
+{
   Blynk.run();
   
   //button status reads in PIN
   buttonStatus = digitalRead(3);
   
-  
   if (buttonStatus == HIGH)
   {
     for(int x=0; x<2; x++)
     {
-      for (int s=0; s<2048; s++)
+      for (int s=0; s<512; s++)
       {
         // 4096 steps = full rotation using default values
-        // this will loop 2048 times for a half rotation
+        // this will loop 512 times for one eighth of a rotation
 
-        // let's move one "step" (of the 2048 per full rotation)
+        // let's move one "step" (of the 512 per full rotation)
         stepper.step(moveClockwise);
         
         /* the direction is based on moveClockwise boolean:
@@ -77,12 +84,40 @@ void loop() {
           Serial.println();
         }
       }
+      
       //short delay
       delay(1000);
 
       //and switch directions for one more rotation
       moveClockwise = !moveClockwise;
     }
-  } 
-}
+    
+    // Initialize the client library
+    HttpClient client;
 
+    //Setup sensorValue to read a value from Analog Port A0
+    int sensorValue = analogRead(A0);
+  
+    //Testing value - when sensor is not connected - comment out when sketch is shown to be working - and take value from A0 instead
+    //sensorValue=1500;
+
+    // Make a HTTP request:  
+    String APIRequest;
+    APIRequest = String(serverName) + "/pushingbox?devid=" + String(devid) + "&IDtag=100&TimeStamp=50&TempC=200"+sensorValue;
+    client.get (APIRequest);
+    
+    //email
+    client.get ("http://api.pushingbox.com/pushingbox?devid=v0A2B7B1F36351B4");
+  
+    // if there are incoming bytes available
+    // from the server, read them and print them:
+    while (client.available()) {
+    char c = client.read();
+  }
+  
+  Serial.flush();
+  String UploadMessage;
+  Serial.print("\n Uploaded feeder data");
+  delay(5000);
+  }
+}
